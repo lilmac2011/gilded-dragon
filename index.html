@@ -502,12 +502,33 @@ footer{color:#7f8ea3}
 .mm .ba{background:repeating-linear-gradient(45deg,#1475e1,#1475e1 8px,#0d4fa0 8px,#0d4fa0 16px);border:3px solid #ffffff55;display:flex;align-items:center;justify-content:center;font-size:30px}
 .mm .fa{transform:rotateY(180deg)}.mm .fa .card{height:100%;aspect-ratio:auto}
 .mm.done .fa{box-shadow:0 0 0 3px var(--acc)}
+
+/* ===== profile ===== */
+#login{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 50% 30%,#1d3b52,var(--bg) 70%);display:none;align-items:center;justify-content:center;padding:16px}
+#login.on{display:flex}
+.lgbox{background:var(--panel);border-radius:14px;padding:26px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 50px #000a}
+.lgbox input{width:100%;background:var(--bg);border:2px solid var(--line);border-radius:8px;color:#fff;padding:13px;font:inherit;font-size:17px;margin:14px 0 10px;text-align:center}
+#lg-list{display:flex;flex-direction:column;gap:6px}
+#lg-list button{display:flex;align-items:center;gap:10px;background:var(--panel2);padding:8px 12px;text-align:left}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;background:var(--panel2);flex:none;line-height:1}
+.av img,.av svg{width:100%;height:100%;object-fit:cover;display:block}
+.mechip{display:flex;align-items:center;gap:8px;background:transparent;padding:4px 8px;margin-left:auto;font-weight:700;max-width:180px}
+.mechip span.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:600px){.mechip span.nm{display:none}}
+.pfhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.pfav{padding:0;border-radius:50%;background:transparent;position:relative}
+.pfav:after{content:'✏️';position:absolute;right:0;bottom:0;background:var(--panel2);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.empick{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px}
+.empick button{font-size:28px;padding:8px}
+.empick button.on,.cpick .card.on{outline:3px solid var(--acc)}
+.lbav{display:inline-block;vertical-align:middle;margin-right:8px}
 </style>
 </head>
 <body>
 <canvas id="fx"></canvas>
 <header class="top">
   <div class="logo">GILDED<span style="color:var(--acc)">.</span>DRAGON</div>
+  <button id="me-chip" class="mechip" title="Your profile"></button>
   <div class="balbox">
     <div class="bal" id="bal">0</div>
     <button class="btn" id="daily">🎁 Daily Spin</button>
@@ -518,6 +539,7 @@ footer{color:#7f8ea3}
 <div class="lvlrow"><b id="lvl">Lv 1</b><div class="bar"><i id="xp" style="width:0"></i></div><span class="mut">level up for bonus coins</span></div>
 <nav class="tabs" id="tabs">
   <button data-t="lobby" class="on">🏠 Lobby</button>
+  <button data-t="profile">👤 Profile</button>
   <div class="sbtitle">Originals</div>
   <button data-t="plinko">🔮 Plinko</button>
   <button data-t="bj">🃏 Blackjack</button>
@@ -546,6 +568,36 @@ footer{color:#7f8ea3}
   <button data-t="shop">🛒 Shop</button>
   <button data-t="friends">👥 Friends</button>
 </nav>
+
+<!-- LOGIN -->
+<div id="login"><div class="lgbox">
+  <div class="logo" style="font-size:30px;margin-bottom:6px">GILDED<span style="color:var(--acc)">.</span>DRAGON</div>
+  <p class="mut">Play-money casino · 1,000 creatures to collect</p>
+  <form id="lg-form"><input id="lg-name" maxlength="16" placeholder="Pick a username" autocomplete="off"><button class="btn" style="width:100%;padding:14px">Play</button></form>
+  <div class="mut" id="lg-err" style="color:#ff4a6a;min-height:18px"></div>
+  <div id="lg-list"></div>
+  <p class="mut" style="font-size:11px;margin-top:12px">No password needed. Profiles are saved in this browser on this device, so each person on this device can have their own coins and cards.</p>
+</div></div>
+
+<!-- PROFILE -->
+<section class="tab" id="t-profile">
+  <div class="panel pfhead">
+    <button class="pfav" id="pf-av" title="Change picture"></button>
+    <div style="flex:1;min-width:0"><h2 id="pf-name" style="font-size:26px"></h2><div class="mut" id="pf-sub"></div><div class="bar"><i id="pf-xp" style="width:0"></i></div><div class="mut" id="pf-lvl" style="font-size:12px"></div></div>
+    <button id="pf-out">Log out / switch</button>
+  </div>
+  <div class="stats" id="pf-stats"></div>
+  <div class="panel">
+    <h3>🖼️ Profile picture</h3>
+    <div class="seg" id="pf-tabs" style="margin:8px 0;display:inline-flex"><button data-p="emoji" class="on">Emoji</button><button data-p="cards">My cards</button><button data-p="upload">Upload</button></div>
+    <div id="pf-pick"></div>
+  </div>
+  <div class="panel">
+    <div class="row" style="justify-content:space-between"><h3>⭐ Card showcase</h3><span class="mut">Tap cards below to pick up to 3 favorites</span></div>
+    <div class="bteam" id="pf-show" style="max-width:420px;margin:10px 0"></div>
+    <div class="grid" id="pf-showpick"></div>
+  </div>
+</section>
 
 <!-- LOBBY -->
 <section class="tab on" id="t-lobby">
@@ -952,9 +1004,11 @@ function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a
 let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2200)}
 
 /* ============ state ============ */
-const KEY='gilded_dragon_v1';
+let USER=null;try{USER=localStorage.getItem('gd_user')}catch(e){}
+const KEY=USER?'gd_u_'+USER.toLowerCase():'gd_guest';
 let S={bal:10000,owned:{},packs:0,daily:0};
 try{const x=JSON.parse(localStorage.getItem(KEY)||'null');if(x&&typeof x.bal==='number')S=Object.assign(S,x)}catch(e){}
+if(USER){if(!S.name)S.name=USER;if(!S.since)S.since=Date.now()}
 function save(){if(typeof checkAch==='function')checkAch();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 let SHOWN=S.bal,TW=0,LB=0;
 function lvlOf(xp){return Math.floor(Math.sqrt(xp/5000))+1}
@@ -1173,14 +1227,14 @@ function enc(o,p){const j=JSON.stringify(o);return p+btoa(unescape(encodeURIComp
 function dec(code,p){code=(code||'').trim().replace(/\s/g,'');if(!code.startsWith(p))return null;const [b,h]=code.slice(p.length).split('.');
   try{const j=decodeURIComponent(escape(atob(b)));return fnv(j+'|gilded|')===h?JSON.parse(j):null}catch(e){return null}}
 function myProfile(){meInit();const own=ownedIds(),best=own.sort((a,c)=>CARDS[c].r-CARDS[a].r||cPow(c)-cPow(a))[0];
-  return{id:S.pid,n:S.name,l:lvlOf(S.xp||0),b:S.best||0,c:own.length,s:btState().stage-1,tr:Object.keys(S.ach||{}).length,top:best??-1,at:Date.now()}}
+  return{id:S.pid,av:(S.av&&S.av.t!=='img')?S.av:undefined,n:S.name,l:lvlOf(S.xp||0),b:S.best||0,c:own.length,s:btState().stage-1,tr:Object.keys(S.ach||{}).length,top:best??-1,at:Date.now()}}
 function renderFriends(){meInit();$('#fr-name').value=S.name;$('#fr-my').value=enc(myProfile(),'GDP-');
   const k=$('#fr-sort').value,rows=[Object.assign(myProfile(),{me:1}),...Object.values(S.friends||{})].sort((a,b)=>(b[k]||0)-(a[k]||0));
   const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
-  $('#fr-lb').innerHTML=rows.map((r,i)=>`<tr class="${r.me?'me':''}"><td>${i+1}</td><td>${esc(r.n)}${r.me?' (you)':`<br><small class="mut">${ago(r.at)}</small>`}</td><td>${r.l}</td><td>${fmt(r.b)}</td><td>${r.c}</td><td>${r.s}</td><td>${r.tr}</td><td>${r.top>=0&&CARDS[r.top]?`<span style="color:${RCOL[CARDS[r.top].r]}">${CARDS[r.top].name}</span>`:'—'}</td><td>${r.me?'':`<button data-unf="${esc(r.id)}" style="padding:4px 8px">✕</button>`}</td></tr>`).join('')+
+  $('#fr-lb').innerHTML=rows.map((r,i)=>`<tr class="${r.me?'me':''}"><td>${i+1}</td><td><span class="lbav">${avHTML(r.me?S.av:r.av,28)}</span>${esc(r.n)}${r.me?' (you)':`<br><small class="mut">${ago(r.at)}</small>`}</td><td>${r.l}</td><td>${fmt(r.b)}</td><td>${r.c}</td><td>${r.s}</td><td>${r.tr}</td><td>${r.top>=0&&CARDS[r.top]?`<span style="color:${RCOL[CARDS[r.top].r]}">${CARDS[r.top].name}</span>`:'—'}</td><td>${r.me?'':`<button data-unf="${esc(r.id)}" style="padding:4px 8px">✕</button>`}</td></tr>`).join('')+
    (rows.length===1?'<tr><td colspan="9" class="mut">Add friends with their codes to see them here.</td></tr>':'')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('#fr-name').onchange=()=>{S.name=$('#fr-name').value.trim().slice(0,16)||S.name;save();renderFriends()};
+$('#fr-name').onchange=()=>{S.name=$('#fr-name').value.trim().slice(0,16)||S.name;save();renderFriends();renderChip()};
 $('#fr-sort').onchange=renderFriends;
 $('#fr-add-go').onclick=()=>{const p=dec($('#fr-add').value,'GDP-');if(!p||!p.id){toast('That friend code is not valid');return}
   if(p.id===S.pid){toast("That's your own code!");return}S.friends=S.friends||{};const isNew=!S.friends[p.id];S.friends[p.id]=p;save();$('#fr-add').value='';toast((isNew?'Added ':'Updated ')+p.n+'!');renderFriends()};
@@ -1219,7 +1273,7 @@ function getBet(p){const v=Math.floor(parseFloat($('#'+p+'-bet').value));
 /* ============ tabs ============ */
 function go(n){$$('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===n));
   $$('section.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+n));
-  if(n==='coll')renderColl();if(n==='packs')renderPacks();if(n==='lobby'){renderLobby();renderMsn()}if(n==='troph')renderTroph();if(n==='battle')renderBattle();if(n==='pass')renderPass();if(n==='shop')renderShop();if(n==='friends')renderFriends();if(n==='stats')renderStats();if(n==='memory')memRender();scrollTo({top:0})}
+  if(n==='coll')renderColl();if(n==='packs')renderPacks();if(n==='lobby'){renderLobby();renderMsn()}if(n==='troph')renderTroph();if(n==='battle')renderBattle();if(n==='pass')renderPass();if(n==='shop')renderShop();if(n==='friends')renderFriends();if(n==='profile')renderProfile();if(n==='stats')renderStats();if(n==='memory')memRender();scrollTo({top:0})}
 $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
 const GAMES=[['plinko','Plinko','🔮','linear-gradient(135deg,#6d28d9,#c026d3)','Drop the ball'],['bj','Blackjack','🃏','linear-gradient(135deg,#047857,#0d9488)','Beat the dealer'],
  ['slots','Slots','🎰','linear-gradient(135deg,#dc2626,#f59e0b)','Line up 3'],['roul','Roulette','🎡','linear-gradient(135deg,#be123c,#7c1d6f)','Red or black?'],
@@ -1879,6 +1933,48 @@ function bigWin(pay,bet){const m=pay/bet;if(m<10||pay-bet<500)return;
   const t0=performance.now();cancelAnimationFrame(BWT);const step=n=>{const u=Math.min(1,(n-t0)/1200);$('#bw-a').textContent='+'+fmt(pay*(1-Math.pow(1-u,3)));if(u<1)BWT=requestAnimationFrame(step)};BWT=requestAnimationFrame(step);
   clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2600)}
 
+/* ============ LOGIN & PROFILE ============ */
+const EMO=['🐉','🦄','🐺','🦊','🐯','🦁','🐼','🐸','🐙','🦈','🦅','🦉','🐲','👾','🤖','👻','🧙','🧛','🥷','🦸','🎩','👑','💎','🔥','⚡','🌙','⭐','🍀','🎲','🃏','🚀','🛸'];
+function avHTML(av,sz){sz=sz||32;av=av||{t:'e',v:'🐉'};let inner;
+  if(av.t==='img'&&/^data:image\//.test(av.v))inner=`<img src="${av.v}" alt="">`;else if(av.t==='c'&&CARDS[av.v])inner=cardArt(+av.v);else inner=esc(av.v||'🐉');
+  return `<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.62)}px">${inner}</span>`}
+function users(){try{return JSON.parse(localStorage.getItem('gd_users')||'[]')}catch(e){return[]}}
+function renderChip(){$('#me-chip').innerHTML=avHTML(S.av,32)+`<span class="nm">${esc(S.name||'Guest')}</span>`}
+$('#me-chip').onclick=()=>go('profile');
+function doLogin(name){name=(name||'').trim();if(!/^[A-Za-z0-9_]{3,16}$/.test(name)){$('#lg-err').textContent='Use 3–16 letters, numbers or _';return}
+  try{const us=users(),k='gd_u_'+name.toLowerCase();
+    if(!us.length&&!localStorage.getItem(k)){const old=localStorage.getItem('gilded_dragon_v1')||localStorage.getItem('gd_guest');if(old)localStorage.setItem(k,old)}
+    const ex=us.find(u=>u.toLowerCase()===name.toLowerCase());if(!ex)us.push(name);localStorage.setItem('gd_users',JSON.stringify(us));localStorage.setItem('gd_user',ex||name)}catch(e){}
+  location.reload()}
+$('#lg-form').onsubmit=e=>{e.preventDefault();doLogin($('#lg-name').value)};
+function showLogin(){const us=users();$('#lg-list').innerHTML=us.length?'<div class="mut" style="font-size:12px;margin-bottom:2px">Profiles on this device</div>'+us.map(u=>{let av,lv=1;try{const x=JSON.parse(localStorage.getItem('gd_u_'+u.toLowerCase())||'{}');av=x.av;lv=lvlOf(x.xp||0)}catch(e){}
+    return `<button data-user="${esc(u)}">${avHTML(av,30)}<b style="flex:1">${esc(u)}</b><span class="mut">Lv ${lv}</span></button>`}).join(''):'';
+  $('#login').classList.add('on');setTimeout(()=>$('#lg-name').focus(),50)}
+$('#lg-list').onclick=e=>{const b=e.target.closest('[data-user]');if(b)doLogin(b.dataset.user)};
+$('#pf-out').onclick=()=>{try{localStorage.removeItem('gd_user')}catch(e){}location.reload()};
+let PFT='emoji';
+function renderProfile(){meInit();const L=lvlOf(S.xp||0),xp=S.xp||0,a=(L-1)*(L-1)*5000,b=L*L*5000,gs=S.gs||{};
+  $('#pf-av').innerHTML=avHTML(S.av,96);$('#pf-name').textContent=S.name;
+  $('#pf-sub').textContent='Member since '+new Date(S.since||Date.now()).toLocaleDateString()+' · Battle stage '+(btState().stage-1)+' · '+Object.keys(S.ach||{}).length+' trophies';
+  $('#pf-xp').style.width=Math.min(100,(xp-a)/(b-a)*100)+'%';$('#pf-lvl').textContent=`Level ${L} · ${fmt(xp-a)} / ${fmt(b-a)} XP to level ${L+1}`;
+  let n=0,p=0;for(const g in gs){n+=gs[g].n;p+=gs[g].p}
+  $('#pf-stats').innerHTML=`<div class="stat"><b>${fmt(S.bal)}</b><span>Coins</span></div><div class="stat"><b>${ownedIds().length}</b><span>Cards found</span></div><div class="stat"><b>${fmt(S.best||0)}</b><span>Biggest win</span></div><div class="stat"><b>${fmt(n)}</b><span>Rounds played</span></div><div class="stat"><b style="color:${p>=0?'var(--acc)':'#ff4a6a'}">${p>=0?'+':''}${fmt(p)}</b><span>Lifetime profit</span></div>`;
+  $$('#pf-tabs button').forEach(x=>x.classList.toggle('on',x.dataset.p===PFT));const pk=$('#pf-pick'),av=S.av||{t:'e',v:'🐉'};
+  if(PFT==='emoji')pk.innerHTML='<div class="empick">'+EMO.map(e=>`<button data-em="${e}" class="${av.t==='e'&&av.v===e?'on':''}">${e}</button>`).join('')+'</div>';
+  else if(PFT==='cards'){const ids=ownedIds().sort((x,y)=>CARDS[y].r-CARDS[x].r||cPow(y)-cPow(x)).slice(0,40);pk.innerHTML=ids.length?'':'<p class="mut">Open some packs to use your creatures as a profile picture.</p>';
+    const g=document.createElement('div');g.className='empick';ids.forEach(id=>{const bt=document.createElement('button');bt.dataset.cav=id;bt.title=CARDS[id].name;bt.innerHTML=avHTML({t:'c',v:id},44);if(av.t==='c'&&+av.v===id)bt.className='on';g.appendChild(bt)});pk.appendChild(g)}
+  else pk.innerHTML='<p class="mut">Pick a photo or drawing. It is cropped to a circle and only saved in this browser. Friends see your emoji or card picture instead.</p><input type="file" id="pf-file" accept="image/*">';
+  const show=(S.show||[]).filter(id=>S.owned[id]>0),top=show.length?show:ownedIds().sort((x,y)=>CARDS[y].r-CARDS[x].r||cPow(y)-cPow(x)).slice(0,3);btMount('#pf-show',top);
+  const sp=$('#pf-showpick');sp.innerHTML='';ownedIds().sort((x,y)=>CARDS[y].r-CARDS[x].r||cPow(y)-cPow(x)).slice(0,30).forEach(id=>{const el=cardEl(id,0);if((S.show||[]).includes(id))el.classList.add('sel');
+    el.onclick=()=>{S.show=S.show||[];const i=S.show.indexOf(id);if(i>=0)S.show.splice(i,1);else{if(S.show.length>=3)S.show.shift();S.show.push(id)}save();renderProfile()};sp.appendChild(el)});
+  renderChip()}
+$('#pf-tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;PFT=b.dataset.p;renderProfile()};
+$('#pf-av').onclick=()=>{PFT='emoji';renderProfile();$('#pf-pick').scrollIntoView({behavior:'smooth',block:'center'})};
+$('#pf-pick').onclick=e=>{const em=e.target.closest('[data-em]'),cv=e.target.closest('[data-cav]');if(em)S.av={t:'e',v:em.dataset.em};else if(cv)S.av={t:'c',v:+cv.dataset.cav};else return;save();sfx('flip');renderProfile()};
+$('#pf-pick').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=160;const s=Math.min(im.width,im.height);
+  c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,160,160);S.av={t:'img',v:c.toDataURL('image/jpeg',.85)};save();toast('Profile picture updated!');renderProfile()};im.onerror=()=>toast("Couldn't read that image");im.src=r.result};r.readAsDataURL(f)};
+renderChip();if(!USER)showLogin();
+
 /* ============ BET LOG / AUTO / HOTKEYS ============ */
 const LOG=[],SS={w:0,p:0};
 function logBet(g,bet,pay){S.gs=S.gs||{};const G=S.gs[g]=S.gs[g]||{n:0,w:0,wag:0,p:0,best:0,bm:0};G.n++;G.wag+=bet;G.p+=pay-bet;if(pay>bet){G.w++;G.best=Math.max(G.best,pay-bet);G.bm=Math.max(G.bm,pay/bet)}save();msn('bet',{g,bet,pay});bigWin(pay,bet);LOG.unshift({g,bet,pay,t:new Date()});if(LOG.length>15)LOG.pop();SS.w+=bet;SS.p+=pay-bet;
@@ -1912,7 +2008,7 @@ document.addEventListener('keydown',e=>{if(e.code!=='Space'||/INPUT|SELECT|TEXTA
     else if(k.matches('.betrow,.autorow,.seg,h3,.pay,.row,p,button')||k.querySelector('input[type=range]'))ct.appendChild(k);else st.appendChild(k)});
   p.classList.add('game');p.append(head,st,ct)});
 $('#reset').onclick=e=>{const b=e.target;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Tap again to erase everything';setTimeout(()=>{b.dataset.ok='';b.textContent='Reset all progress'},3000);return}
-  try{localStorage.removeItem(KEY)}catch(x){}S={bal:10000,owned:{},packs:0,daily:0,xp:0,ach:{},best:0};save();renderBal();renderLobby();renderPacks();go('lobby');toast('Progress reset. Fresh 10,000 coins!');b.dataset.ok='';b.textContent='Reset all progress'};
+  try{localStorage.removeItem(KEY)}catch(x){}S={bal:10000,owned:{},packs:0,daily:0,xp:0,ach:{},best:0,name:USER||undefined,since:Date.now()};save();renderBal();renderLobby();renderPacks();go('lobby');toast('Progress reset. Fresh 10,000 coins!');b.dataset.ok='';b.textContent='Reset all progress'};
 
 applyCos();renderBal();renderPacks();renderLobby();renderMsn();setInterval(renderBal,60000);
 </script>
