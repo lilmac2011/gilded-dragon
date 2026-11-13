@@ -483,6 +483,25 @@ footer{color:#7f8ea3}
 @media(max-width:700px){.frcols{grid-template-columns:1fr}}
 .code{width:100%;min-height:64px;background:var(--bg);border:2px solid var(--line);border-radius:8px;color:#fff;padding:8px;font:12px ui-monospace,monospace;resize:vertical;margin:6px 0;word-break:break-all}
 .mbt tr.me td{background:#00e70114;font-weight:800}
+
+.vphand{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin:10px auto;width:100%}
+.vphand .pc{width:100%;height:auto;aspect-ratio:5/7;font-size:24px;cursor:pointer;position:relative;transition:transform .15s}
+.vphand .pc.held{transform:translateY(-10px);box-shadow:0 0 0 3px var(--acc),0 6px 12px #0008}
+.vphand .pc.held:after{content:'HELD';position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--acc);font-weight:900}
+.vppay{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:12px;max-width:460px;margin:24px auto 0;width:100%}
+.vppay span{background:var(--panel2);border-radius:6px;padding:4px 8px;display:flex;justify-content:space-between}
+.vppay span.on{background:var(--acc);color:#05080f;font-weight:900}
+.bcbox{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center}
+.bcbox .hand{justify-content:center}
+.mmgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:400px;margin:12px auto}
+@media(min-width:900px){.mmgrid{max-width:340px}}
+.mm{aspect-ratio:5/7;perspective:600px;cursor:pointer}
+.mm .in{position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.mm.up .in{transform:rotateY(180deg)}
+.mm .fa,.mm .ba{position:absolute;inset:0;backface-visibility:hidden;border-radius:10px;overflow:hidden}
+.mm .ba{background:repeating-linear-gradient(45deg,#1475e1,#1475e1 8px,#0d4fa0 8px,#0d4fa0 16px);border:3px solid #ffffff55;display:flex;align-items:center;justify-content:center;font-size:30px}
+.mm .fa{transform:rotateY(180deg)}.mm .fa .card{height:100%;aspect-ratio:auto}
+.mm.done .fa{box-shadow:0 0 0 3px var(--acc)}
 </style>
 </head>
 <body>
@@ -514,11 +533,15 @@ footer{color:#7f8ea3}
   <button data-t="limbo">📈 Limbo</button>
   <button data-t="keno">🔢 Keno</button>
   <button data-t="flip">🪙 Coin Flip</button>
+  <button data-t="vp">🂡 Video Poker</button>
+  <button data-t="bac">🎴 Baccarat</button>
   <div class="sbtitle">Collect</div>
   <button data-t="packs">🎴 Packs</button>
   <button data-t="coll">📚 Cards</button>
   <button data-t="troph">🏆 Trophies</button>
   <button data-t="battle">⚔️ Battles</button>
+  <button data-t="memory">🧠 Memory Match</button>
+  <button data-t="stats">📊 My Stats</button>
   <button data-t="pass">🎟️ Season Pass</button>
   <button data-t="shop">🛒 Shop</button>
   <button data-t="friends">👥 Friends</button>
@@ -737,6 +760,53 @@ footer{color:#7f8ea3}
     <div class="row"><button class="btn alt" id="fl-h" disabled>🐉 Heads</button><button class="btn alt" id="fl-t" disabled>👑 Tails</button></div>
     <div class="betrow"><label>Bet</label><input id="fl-bet" type="number" min="1" value="100"><button data-bet="fl" data-op="half">½</button><button data-bet="fl" data-op="dbl">2×</button><button data-bet="fl" data-op="max">Max</button></div>
     <div class="row"><button class="btn" id="fl-start">Start</button><button class="btn green" id="fl-cash" disabled>Cash Out</button></div>
+  </div>
+</section>
+
+<!-- VIDEO POKER -->
+<section class="tab" id="t-vp">
+  <div class="panel">
+    <h2>🂡 Video Poker</h2>
+    <p class="mut">Jacks or Better. Deal 5 cards, tap the ones to HOLD, then draw. Pair of Jacks or better pays.</p>
+    <div class="vphand" id="vp-hand"></div>
+    <div class="vppay" id="vp-pay"></div>
+    <div class="msg" id="vp-msg" style="text-align:center"></div>
+    <div class="betrow"><label>Bet</label><input id="vp-bet" type="number" min="1" value="100"><button data-bet="vp" data-op="half">½</button><button data-bet="vp" data-op="dbl">2×</button><button data-bet="vp" data-op="max">Max</button></div>
+    <button class="btn" id="vp-go" style="width:100%;padding:14px">Deal</button>
+  </div>
+</section>
+
+<!-- BACCARAT -->
+<section class="tab" id="t-bac">
+  <div class="panel">
+    <h2>🎴 Baccarat</h2>
+    <p class="mut">Bet on which hand ends closest to 9. Player pays 1:1, Banker pays 0.95:1, Tie pays 8:1. Face cards and 10s count as 0.</p>
+    <div class="bcbox"><div><div class="mut">PLAYER <b id="bc-pv"></b></div><div class="hand" id="bc-p"></div></div><div><div class="mut">BANKER <b id="bc-bv"></b></div><div class="hand" id="bc-b"></div></div></div>
+    <div class="hist" id="bc-hist"></div>
+    <div class="msg" id="bc-msg" style="text-align:center"></div>
+    <div class="seg" id="bc-side"><button data-s="p" class="on">Player 2×</button><button data-s="b">Banker 1.95×</button><button data-s="t">Tie 9×</button></div>
+    <div class="betrow"><label>Bet</label><input id="bc-bet" type="number" min="1" value="100"><button data-bet="bc" data-op="half">½</button><button data-bet="bc" data-op="dbl">2×</button><button data-bet="bc" data-op="max">Max</button></div>
+    <button class="btn" id="bc-go" style="width:100%;padding:14px">Deal</button>
+  </div>
+</section>
+
+<!-- MEMORY -->
+<section class="tab" id="t-memory">
+  <div class="panel">
+    <h2>🧠 Memory Match</h2>
+    <p class="mut">Free to play! Flip two cards at a time and find all 8 pairs, using creatures from your own collection. Fewer moves earns more coins (5 rewarded games a day).</p>
+    <div class="row" style="justify-content:space-between"><span>Moves: <b id="mm-moves">0</b> · Pairs: <b id="mm-pairs">0</b>/8 · Time: <b id="mm-time">0</b>s</span><span class="mut">Rewards left today: <b id="mm-left">5</b></span></div>
+    <div class="mmgrid" id="mm-grid"></div>
+    <div class="msg" id="mm-msg" style="text-align:center"></div>
+    <button class="btn" id="mm-new" style="width:100%">New Game</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="tab" id="t-stats">
+  <div class="panel"><h2>📊 My Stats</h2><p class="mut">Your lifetime record in every game. Real casinos are built so the house wins over time, and the profit column shows that here too.</p>
+    <div class="stats" id="stt-top"></div>
+    <div style="overflow-x:auto"><table class="mbt"><thead><tr><th>Game</th><th>Rounds</th><th>Win rate</th><th>Wagered</th><th>Profit</th><th>Biggest win</th><th>Best multi</th></tr></thead><tbody id="stt-body"></tbody></table></div>
   </div>
 </section>
 
@@ -1010,7 +1080,7 @@ function packSvg(t,pre){const P=PACKS[t],zz=y=>{let p='';for(let x=6;x<=104;x+=7
 
 /* ============ SHARED HELPERS ============ */
 function st(){return S.st=S.st||{}}
-const GN={plinko:'Plinko',bj:'Blackjack',slots:'Slots',roul:'Roulette',crash:'Crash',mines:'Mines',dice:'Dice',hilo:'Hi-Lo',tower:'Tower',wheel:'Wheel',chicken:'Chicken Road',limbo:'Limbo',keno:'Keno',flip:'Coin Flip'};
+const GN={plinko:'Plinko',bj:'Blackjack',slots:'Slots',roul:'Roulette',crash:'Crash',mines:'Mines',dice:'Dice',hilo:'Hi-Lo',tower:'Tower',wheel:'Wheel',chicken:'Chicken Road',limbo:'Limbo',keno:'Keno',flip:'Coin Flip',vp:'Video Poker',bac:'Baccarat'};
 function GOTD(){const k=Object.keys(GN);return k[msnDay()%k.length]}
 const ownedIds=()=>Object.keys(S.owned).filter(i=>S.owned[i]>0).map(Number);
 function cPow(id){const s=cStats(id);return Math.round(s[0]+s[1]*.6)}
@@ -1149,7 +1219,7 @@ function getBet(p){const v=Math.floor(parseFloat($('#'+p+'-bet').value));
 /* ============ tabs ============ */
 function go(n){$$('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===n));
   $$('section.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+n));
-  if(n==='coll')renderColl();if(n==='packs')renderPacks();if(n==='lobby'){renderLobby();renderMsn()}if(n==='troph')renderTroph();if(n==='battle')renderBattle();if(n==='pass')renderPass();if(n==='shop')renderShop();if(n==='friends')renderFriends();scrollTo({top:0})}
+  if(n==='coll')renderColl();if(n==='packs')renderPacks();if(n==='lobby'){renderLobby();renderMsn()}if(n==='troph')renderTroph();if(n==='battle')renderBattle();if(n==='pass')renderPass();if(n==='shop')renderShop();if(n==='friends')renderFriends();if(n==='stats')renderStats();if(n==='memory')memRender();scrollTo({top:0})}
 $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
 const GAMES=[['plinko','Plinko','🔮','linear-gradient(135deg,#6d28d9,#c026d3)','Drop the ball'],['bj','Blackjack','🃏','linear-gradient(135deg,#047857,#0d9488)','Beat the dealer'],
  ['slots','Slots','🎰','linear-gradient(135deg,#dc2626,#f59e0b)','Line up 3'],['roul','Roulette','🎡','linear-gradient(135deg,#be123c,#7c1d6f)','Red or black?'],
@@ -1158,12 +1228,14 @@ const GAMES=[['plinko','Plinko','🔮','linear-gradient(135deg,#6d28d9,#c026d3)'
  ['hilo','Hi-Lo','🔼','linear-gradient(135deg,#0891b2,#4f46e5)','Higher or lower?','NEW'],['tower','Tower','🏰','linear-gradient(135deg,#9a3412,#e11d48)','Climb past the dragon','NEW'],['wheel','Fortune Wheel','🎯','linear-gradient(135deg,#ca8a04,#db2777)','Spin to win','NEW'],['packs','Card Packs','🎴','linear-gradient(135deg,#b45309,#facc15)','Chase the Legendary'],
  ['chicken','Chicken Road','🐔','linear-gradient(135deg,#ea580c,#facc15)','Cross before you get hit','NEW'],
  ['limbo','Limbo','📈','linear-gradient(135deg,#7c3aed,#2563eb)','Pick a target, beat it','NEW'],['keno','Keno','🔢','linear-gradient(135deg,#0d9488,#65a30d)','Pick numbers, match the draw','NEW'],['flip','Coin Flip','🪙','linear-gradient(135deg,#a16207,#f59e0b)','Double it or lose it','NEW'],
+ ['vp','Video Poker','🂡','linear-gradient(135deg,#1e3a8a,#be123c)','Jacks or Better','NEW'],['bac','Baccarat','🎴','linear-gradient(135deg,#14532d,#a16207)','Player or Banker?','NEW'],
+ ['memory','Memory Match','🧠','linear-gradient(135deg,#6d28d9,#0891b2)','Free! Match your cards','NEW'],['stats','My Stats','📊','linear-gradient(135deg,#334155,#0f766e)','Your lifetime record'],
  ['battle','Card Battles','⚔️','linear-gradient(135deg,#991b1b,#7c3aed)','Fight with your cards','NEW'],['pass','Season Pass','🎟️','linear-gradient(135deg,#0369a1,#a21caf)','30 tiers of rewards','NEW'],['shop','Shop','🛒','linear-gradient(135deg,#be185d,#f59e0b)','Skins & themes','NEW'],['friends','Friends','👥','linear-gradient(135deg,#047857,#2563eb)','Gift coins & cards','NEW'],
  ['coll','Collection','📚','linear-gradient(135deg,#334155,#6366f1)',''],['troph','Trophies','🏆','linear-gradient(135deg,#a16207,#65a30d)','']];
 function renderLobby(){const own=Object.keys(S.owned).filter(i=>S.owned[i]>0).length,tr=Object.keys(S.ach||{}).length;
   $('#lstats').innerHTML=`<div class="stat"><b>${fmt(S.bal)}</b><span>Balance</span></div><div class="stat"><b>${lvlOf(S.xp||0)}</b><span>Level</span></div><div class="stat"><b>${fmt(S.best||0)}</b><span>Best win</span></div><div class="stat"><b>${own}</b><span>Cards found</span></div><div class="stat"><b>${tr}/${ACH.length}</b><span>Trophies</span></div>`.replace(/<div class="stat"><b>[^<]*<\/b><span>Cards found/,m=>m);
   const qq=(($('#gsearch')||{}).value||'').toLowerCase(),tile=g=>`<button class="gt" data-go="${g[0]}" style="background:${g[3]}">${g[0]===GOTD()?'<span class="tag">⭐ TODAY</span>':g[5]?'<span class="tag">'+g[5]+'</span>':''}<span class="ic">${g[2]}</span><b>${g[1]}</b><small>${g[0]==='coll'?own+' / 1,000 found':g[0]==='troph'?tr+' / '+ACH.length+' unlocked':g[4]}</small></button>`,
-  F=GAMES.filter(g=>g[1].toLowerCase().includes(qq)),A=F.filter(g=>!['packs','coll','troph','battle','pass','shop','friends'].includes(g[0])),B=F.filter(g=>['packs','coll','troph','battle','pass','shop','friends'].includes(g[0]));
+  F=GAMES.filter(g=>g[1].toLowerCase().includes(qq)),A=F.filter(g=>!['packs','coll','troph','battle','pass','shop','friends','memory','stats'].includes(g[0])),B=F.filter(g=>['packs','coll','troph','battle','pass','shop','friends','memory','stats'].includes(g[0]));
   $('#lobby').innerHTML=(A.length?`<div class="lh">Gilded Originals</div><div class="lobby">${A.map(tile).join('')}</div>`:'')+(B.length?`<div class="lh">Cards & Rewards</div><div class="lobby">${B.map(tile).join('')}</div>`:'')+(F.length?'':'<p class="mut">No games match.</p>')}
 document.addEventListener('input',e=>{if(e.target.id==='gsearch')renderLobby()});
 document.addEventListener('click',e=>{if(e.target.id==='promo-go')go('packs')});
@@ -1580,7 +1652,10 @@ const ACH=[
  ['limbo100','📈','Moonshot','Win a Limbo bet at 100× or more',()=>(S.st&&S.st.limbo||0)>=100,10000],
  ['crash10','🚀','Ice Cold','Cash out Crash at 10× or more',()=>(S.st&&S.st.crash||0)>=10,5000],
  ['pass30','🎟️','Season Legend','Reach Season Pass tier 30',()=>(S.sp||0)>=3000,20000],
- ['friend','👥','Social','Add a friend',()=>Object.keys(S.friends||{}).length>0,500]];
+ ['friend','👥','Social','Add a friend',()=>Object.keys(S.friends||{}).length>0,500],
+ ['royal','👑','Royalty','Hit a Royal Flush in Video Poker',()=>S.gs&&S.gs['Video Poker']&&S.gs['Video Poker'].bm>=250,25000],
+ ['mem12','🧠','Photographic','Solve Memory Match in 12 moves or fewer',()=>(S.st&&S.st.mmBest||99)<=12,3000],
+ ['allgames','🎰','Explorer','Play every casino game at least once',()=>Object.values(GN).every(n=>S.gs&&S.gs[n]),5000]];
 function checkAch(){S.ach=S.ach||{};const got=[];
   for(const a of ACH)if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=1;S.bal+=a[5];got.push(a)}
   got.forEach((a,k)=>setTimeout(()=>{const e=document.createElement('div');e.className='ach';e.innerHTML=`${a[1]} Trophy: ${a[2]}<br><small>+${fmt(a[5])} coins</small>`;
@@ -1588,6 +1663,71 @@ function checkAch(){S.ach=S.ach||{};const got=[];
   return got.length}
 function renderTroph(){S.ach=S.ach||{};$('#tr-n').textContent=Object.keys(S.ach).length+' / '+ACH.length;
   $('#tr-grid').innerHTML=ACH.map(a=>`<div class="tr ${S.ach[a[0]]?'on':''}"><div class="ti">${a[1]}</div><b>${a[2]}</b><small>${a[3]}</small><i>🪙 ${fmt(a[5])}</i></div>`).join('')}
+
+/* ============ VIDEO POKER ============ */
+const VPT=[['Royal Flush',250],['Straight Flush',50],['Four of a Kind',25],['Full House',8],['Flush',5],['Straight',4],['Three of a Kind',3],['Two Pair',2],['Jacks or Better',1]];
+const VP={st:0,hand:[],held:[],deck:[],bet:0};
+function vpEval(h){const r=h.map(c=>c.v).sort((a,b)=>a-b),cnt={};r.forEach(v=>cnt[v]=(cnt[v]||0)+1);const cs=Object.values(cnt).sort((a,b)=>b-a);
+  const fl=h.every(c=>c.s===h[0].s),u=Object.keys(cnt).length===5,royal=u&&r.join()==='1,10,11,12,13',str=u&&(r[4]-r[0]===4||royal);
+  if(fl&&royal)return 0;if(fl&&str)return 1;if(cs[0]===4)return 2;if(cs[0]===3&&cs[1]===2)return 3;if(fl)return 4;if(str)return 5;if(cs[0]===3)return 6;if(cs[0]===2&&cs[1]===2)return 7;
+  if(cs[0]===2){const p=+Object.keys(cnt).find(k=>cnt[k]===2);if(p===1||p>=11)return 8}return -1}
+function vpRender(hit){$('#vp-hand').innerHTML=(VP.hand.length?VP.hand:[0,0,0,0,0]).map((c,i)=>c?pcEl(c).replace('class="pc','class="pc'+(VP.held[i]?' held':'')).replace('<div','<div data-i="'+i+'"'):'<div class="pc back">?</div>').join('');
+  $('#vp-pay').innerHTML=VPT.map(([n,m],i)=>`<span class="${hit===i?'on':''}">${n}<b>${m}×</b></span>`).join('');$('#vp-go').textContent=VP.st===1?'Draw':'Deal'}
+$('#vp-hand').onclick=e=>{const c=e.target.closest('[data-i]');if(!c||VP.st!==1)return;const i=+c.dataset.i;VP.held[i]=!VP.held[i];sfx('tick');vpRender()};
+$('#vp-go').onclick=()=>{
+  if(VP.st!==1){const bet=getBet('vp');if(!bet)return;addBal(-bet);VP.bet=bet;VP.deck=newDeck();VP.hand=[0,1,2,3,4].map(()=>VP.deck.pop());VP.held=[0,0,0,0,0];VP.st=1;
+    const pre=vpEval(VP.hand);$('#vp-msg').innerHTML=pre>=0?`You're holding <b>${VPT[pre][0]}</b>. Tap cards to hold, then Draw.`:'Tap cards to hold, then Draw.';sfx('flip');vpRender(pre);return}
+  VP.hand=VP.hand.map((c,i)=>VP.held[i]?c:VP.deck.pop());VP.st=2;const k=vpEval(VP.hand),pay=k>=0?VP.bet*VPT[k][1]:0;VP.held=[0,0,0,0,0];
+  addBal(pay,pay<=VP.bet);logBet('Video Poker',VP.bet,pay);vpRender(k);sfx(k>=0?'win':'lose');
+  $('#vp-msg').innerHTML=k>=0?`<span class="win">${VPT[k][0]}! ${VPT[k][1]}× → ${pay>VP.bet?'+'+fmt(pay-VP.bet):'bet back'}</span>`:`<span class="lose">No win (−${fmt(VP.bet)})</span>`};
+vpRender();
+
+/* ============ BACCARAT ============ */
+const BC={side:'p',busy:false,hist:[]};
+const bcV=c=>c.v>=10?0:c.v,bcT=h=>h.reduce((s,c)=>s+bcV(c),0)%10,bcCard=()=>({v:1+Math.floor(rand()*13),s:Math.floor(rand()*4)});
+$('#bc-side').onclick=e=>{const b=e.target.closest('button');if(!b||BC.busy)return;BC.side=b.dataset.s;$$('#bc-side button').forEach(x=>x.classList.toggle('on',x===b))};
+$('#bc-go').onclick=()=>{if(BC.busy)return;const bet=getBet('bc');if(!bet)return;addBal(-bet);BC.busy=true;$('#bc-msg').textContent='';
+  const P=[bcCard(),bcCard()],B=[bcCard(),bcCard()];let p3=null;
+  if(bcT(P)<8&&bcT(B)<8){if(bcT(P)<=5){p3=bcCard();P.push(p3)}
+    const b=bcT(B),x=p3?bcV(p3):-1;
+    if(p3===null?b<=5:(b<=2||(b===3&&x!==8)||(b===4&&x>=2&&x<=7)||(b===5&&x>=4&&x<=7)||(b===6&&(x===6||x===7))))B.push(bcCard())}
+  const seq=[['p',0],['b',0],['p',1],['b',1]];if(P[2])seq.push(['p',2]);if(B[2])seq.push(['b',2]);
+  const sp=[],sb=[];let i=0;
+  const show=()=>{$('#bc-p').innerHTML=sp.map(c=>pcEl(c)).join('');$('#bc-b').innerHTML=sb.map(c=>pcEl(c)).join('');$('#bc-pv').textContent=sp.length?bcT(sp):'';$('#bc-bv').textContent=sb.length?bcT(sb):''};
+  const step=()=>{if(i<seq.length){const [w,k]=seq[i++];(w==='p'?sp:sb).push(w==='p'?P[k]:B[k]);sfx('flip');show();setTimeout(step,450);return}
+    const pt=bcT(P),bt=bcT(B),res=pt>bt?'p':bt>pt?'b':'t';let pay=0;
+    if(res==='t')pay=BC.side==='t'?bet*9:bet;else if(res===BC.side)pay=res==='p'?bet*2:Math.floor(bet*1.95);
+    addBal(pay,pay<=bet);logBet('Baccarat',bet,pay);BC.hist.push(res);BC.busy=false;
+    $('#bc-hist').innerHTML=BC.hist.slice(-16).map(r=>`<span style="background:${r==='p'?'#1475e1':r==='b'?'#e9113c':'#00b85c'}">${r.toUpperCase()}</span>`).join('');
+    const nm={p:'Player',b:'Banker',t:'Tie'}[res];$('#bc-msg').innerHTML=pay>bet?`<span class="win">${nm} wins ${pt}–${bt}! +${fmt(pay-bet)}</span>`:pay===bet?`${nm} ${pt}–${bt}. Push, bet returned.`:`<span class="lose">${nm} wins ${pt}–${bt} (−${fmt(bet)})</span>`};
+  $('#bc-p').innerHTML='';$('#bc-b').innerHTML='';step()};
+
+/* ============ MEMORY MATCH ============ */
+const MM={cards:[],open:[],moves:0,pairs:0,t0:0,tm:0,lock:false,done:false};
+function mmDay(){S.mm=S.mm||{day:0,n:0};const d=msnDay();if(S.mm.day!==d){S.mm.day=d;S.mm.n=0}return S.mm}
+function memNew(){const own=ownedIds();let pool=shuffle(own.length>=8?own:[...own,...shuffle([...Array(1000).keys()]).filter(i=>!own.includes(i))]).slice(0,8);
+  MM.cards=shuffle([...pool,...pool].map((id,i)=>({id,k:i,up:false,done:false})));MM.open=[];MM.moves=0;MM.pairs=0;MM.t0=0;MM.done=false;MM.lock=false;clearInterval(MM.tm);$('#mm-msg').textContent='';memBuild()}
+function memBuild(){const g=$('#mm-grid');g.innerHTML='';MM.cards.forEach((c,i)=>{const d=document.createElement('div');d.className='mm';d.dataset.i=i;
+  d.innerHTML='<div class="in"><div class="ba">🐉</div><div class="fa"></div></div>';d.querySelector('.fa').appendChild(cardEl(c.id,0));g.appendChild(d)});memRender()}
+function memRender(){if(!MM.cards.length){memNew();return}$$('#mm-grid .mm').forEach(d=>{const c=MM.cards[+d.dataset.i];d.classList.toggle('up',c.up||c.done);d.classList.toggle('done',c.done)});
+  $('#mm-moves').textContent=MM.moves;$('#mm-pairs').textContent=MM.pairs;$('#mm-left').textContent=Math.max(0,5-mmDay().n)}
+$('#mm-grid').onclick=e=>{const d=e.target.closest('.mm');if(!d||MM.lock||MM.done)return;const c=MM.cards[+d.dataset.i];if(c.up||c.done)return;
+  if(!MM.t0){MM.t0=Date.now();MM.tm=setInterval(()=>$('#mm-time').textContent=Math.floor((Date.now()-MM.t0)/1000),500)}
+  c.up=true;MM.open.push(c);sfx('flip');memRender();
+  if(MM.open.length===2){MM.moves++;const [a,b]=MM.open;MM.open=[];
+    if(a.id===b.id){a.done=b.done=true;MM.pairs++;sfx('win');memRender();
+      if(MM.pairs===8){MM.done=true;clearInterval(MM.tm);const m=mmDay(),secs=Math.floor((Date.now()-MM.t0)/1000);let msg=`Solved in ${MM.moves} moves and ${secs}s!`;
+        if(m.n<5){const r=Math.max(50,500-(MM.moves-8)*25);m.n++;addBal(r,1);floatWin(r);msg+=` +${fmt(r)} coins`}else msg+=' (no coin rewards left today, but nice job!)';
+        st().mmBest=Math.min(st().mmBest||99,MM.moves);save();confetti(100);$('#mm-msg').innerHTML='<span class="win">'+msg+'</span>';memRender()}}
+    else{MM.lock=true;setTimeout(()=>{a.up=b.up=false;MM.lock=false;memRender()},800)}}};
+$('#mm-new').onclick=memNew;
+
+/* ============ STATS ============ */
+function renderStats(){const gs=S.gs||{},rows=Object.entries(gs).sort((a,b)=>b[1].wag-a[1].wag);let T={n:0,w:0,wag:0,p:0,best:0};
+  rows.forEach(([g,v])=>{T.n+=v.n;T.w+=v.w;T.wag+=v.wag;T.p+=v.p;T.best=Math.max(T.best,v.best)});
+  const pc=(a,b)=>b?Math.round(a/b*100)+'%':'—',pf=p=>`<span style="color:${p>=0?'var(--acc)':'#ff4a6a'}">${p>=0?'+':''}${fmt(p)}</span>`;
+  $('#stt-top').innerHTML=`<div class="stat"><b>${fmt(T.n)}</b><span>Rounds played</span></div><div class="stat"><b>${pc(T.w,T.n)}</b><span>Win rate</span></div><div class="stat"><b>${fmt(T.wag)}</b><span>Total wagered</span></div><div class="stat"><b>${pf(T.p)}</b><span>Total profit</span></div><div class="stat"><b>${fmt(T.best)}</b><span>Biggest win</span></div>`;
+  $('#stt-body').innerHTML=rows.length?rows.map(([g,v])=>`<tr><td>${g}</td><td>${fmt(v.n)}</td><td>${pc(v.w,v.n)}</td><td>${fmt(v.wag)}</td><td>${pf(v.p)}</td><td>${fmt(v.best)}</td><td>${v.bm?v.bm.toFixed(2)+'×':'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="mut">Play some games to see your stats.</td></tr>'}
 
 /* ============ PACKS ============ */
 const PACKS=[
@@ -1705,7 +1845,7 @@ $('#ds-go').onclick=()=>{if(DSBUSY||Date.now()-S.daily<864e5)return;DSBUSY=true;
   setTimeout(()=>{DSBUSY=false;const v=DSP[i][0];addBal(v,1);addSP(30);floatWin(v);sfx('big');confetti(v>=2500?200:90);$('#ds-msg').innerHTML=`<span class="win">You won 🪙${fmt(v)}!</span>`},4300)};
 
 /* ============ DAILY MISSIONS ============ */
-const MGAMES=['Limbo','Keno','Coin Flip','Plinko','Blackjack','Slots','Roulette','Crash','Mines','Dice','Hi-Lo','Tower','Wheel','Chicken Road'];
+const MGAMES=['Video Poker','Baccarat','Limbo','Keno','Coin Flip','Plinko','Blackjack','Slots','Roulette','Crash','Mines','Dice','Hi-Lo','Tower','Wheel','Chicken Road'];
 const MT=[
  r=>{const g=MGAMES[Math.floor(r()*MGAMES.length)],n=4+Math.floor(r()*5);return{k:'play',g,goal:n,txt:`Play ${n} rounds of ${g}`,ic:'🎮',rew:n*150}},
  r=>{const n=3+Math.floor(r()*5);return{k:'win',goal:n,txt:`Win ${n} bets in any game`,ic:'🏅',rew:n*200}},
@@ -1741,10 +1881,10 @@ function bigWin(pay,bet){const m=pay/bet;if(m<10||pay-bet<500)return;
 
 /* ============ BET LOG / AUTO / HOTKEYS ============ */
 const LOG=[],SS={w:0,p:0};
-function logBet(g,bet,pay){msn('bet',{g,bet,pay});bigWin(pay,bet);LOG.unshift({g,bet,pay,t:new Date()});if(LOG.length>15)LOG.pop();SS.w+=bet;SS.p+=pay-bet;
+function logBet(g,bet,pay){S.gs=S.gs||{};const G=S.gs[g]=S.gs[g]||{n:0,w:0,wag:0,p:0,best:0,bm:0};G.n++;G.wag+=bet;G.p+=pay-bet;if(pay>bet){G.w++;G.best=Math.max(G.best,pay-bet);G.bm=Math.max(G.bm,pay/bet)}save();msn('bet',{g,bet,pay});bigWin(pay,bet);LOG.unshift({g,bet,pay,t:new Date()});if(LOG.length>15)LOG.pop();SS.w+=bet;SS.p+=pay-bet;
   $('#ss-w').textContent=fmt(SS.w);const p=$('#ss-p');p.textContent=(SS.p>0?'+':'')+fmt(SS.p);p.style.color=SS.p>=0?'var(--acc)':'#ff4a6a';
   $('#mb-body').innerHTML=LOG.map((r,i)=>{const m=r.pay/r.bet,w=r.pay>r.bet;return `<tr class="${i===0?'nwr':''}"><td>${r.g}</td><td class="mut">${r.t.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'})}</td><td>🪙${fmt(r.bet)}</td><td>${m.toFixed(2)}×</td><td class="${w?'p':'l'}">${w?'+':''}${fmt(r.pay-r.bet)}</td></tr>`}).join('')}
-const GAMETABS=['limbo','keno','flip','chicken','plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel'];
+const GAMETABS=['vp','bac','limbo','keno','flip','chicken','plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel'];
 const _go=go;go=function(n){_go(n);$('#mb-wrap').style.display=GAMETABS.includes(n)?'':'none';autoStop();const s=$('#t-'+n);if(s&&GAMETABS.includes(n))s.after($('#mb-wrap'))};
 const AUTOS={pl:['#pl-drop',350,'plinko'],slot:['#slot-spin',1600,'slots'],dc:['#dc-go',650,'dice'],wh:['#wh-go',3950,'wheel']};
 let AU={on:false,g:null,left:0,tm:0};
@@ -1759,13 +1899,13 @@ function autoStep(){if(!AU.on)return;const [sel,ms,tab]=AUTOS[AU.g],bet=parseInt
 document.addEventListener('click',e=>{const b=e.target.closest('[data-au]');if(!b)return;
   if(AU.on&&AU.g===b.dataset.au){autoStop();return}autoStop();
   AU={on:true,g:b.dataset.au,left:Math.min(100,Math.max(1,parseInt($('#au-'+b.dataset.au).value)||10)),tm:0};autoStep()});
-const HOT={limbo:['#lb-go'],keno:['#kn-go'],flip:['#fl-start','#fl-cash'],chicken:['#ck-start','#ck-go'],plinko:['#pl-drop'],bj:['#bj-deal','#bj-stand'],slots:['#slot-spin'],roul:['#rl-spin'],crash:['#cr-go'],mines:['#mn-start','#mn-cash'],dice:['#dc-go'],hilo:['#hl-start','#hl-cash'],tower:['#tw-start','#tw-cash'],wheel:['#wh-go']};
+const HOT={vp:['#vp-go'],bac:['#bc-go'],limbo:['#lb-go'],keno:['#kn-go'],flip:['#fl-start','#fl-cash'],chicken:['#ck-start','#ck-go'],plinko:['#pl-drop'],bj:['#bj-deal','#bj-stand'],slots:['#slot-spin'],roul:['#rl-spin'],crash:['#cr-go'],mines:['#mn-start','#mn-cash'],dice:['#dc-go'],hilo:['#hl-start','#hl-cash'],tower:['#tw-start','#tw-cash'],wheel:['#wh-go']};
 document.addEventListener('keydown',e=>{if(e.code!=='Space'||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
   const on=$('section.tab.on');if(!on)return;const k=on.id.slice(2),list=HOT[k];if(!list)return;e.preventDefault();
   for(const s of list){const b=$(s);if(b&&!b.disabled){b.click();break}}});
 
 /* ============ LAYOUT: controls column + game stage ============ */
-['plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel','chicken','limbo','keno','flip'].forEach(g=>{
+['plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel','chicken','limbo','keno','flip','vp','bac'].forEach(g=>{
   const p=$('#t-'+g+' .panel');if(!p)return;const kids=[...p.children];
   const head=document.createElement('div'),st=document.createElement('div'),ct=document.createElement('div');head.className='ghead';st.className='gstage';ct.className='gctl';
   kids.forEach((k,i)=>{if(k.tagName==='H2'||(i<3&&k.tagName==='P'))head.appendChild(k);
