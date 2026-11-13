@@ -482,7 +482,6 @@ footer{color:#7f8ea3}
   <button data-t="limbo">📈 Limbo</button>
   <button data-t="keno">🔢 Keno</button>
   <button data-t="flip">🪙 Coin Flip</button>
-  <button data-t="ai">🤖 Beat the AI</button>
   <div class="sbtitle">Collect</div>
   <button data-t="packs">🎴 Packs</button>
   <button data-t="coll">📚 Cards</button>
@@ -702,21 +701,6 @@ footer{color:#7f8ea3}
     <div class="row"><button class="btn alt" id="fl-h" disabled>🐉 Heads</button><button class="btn alt" id="fl-t" disabled>👑 Tails</button></div>
     <div class="betrow"><label>Bet</label><input id="fl-bet" type="number" min="1" value="100"><button data-bet="fl" data-op="half">½</button><button data-bet="fl" data-op="dbl">2×</button><button data-bet="fl" data-op="max">Max</button></div>
     <div class="row"><button class="btn" id="fl-start">Start</button><button class="btn green" id="fl-cash" disabled>Cash Out</button></div>
-  </div>
-</section>
-
-<!-- BEAT THE AI -->
-<section class="tab" id="t-ai">
-  <div class="panel">
-    <h2>🤖 Beat the AI</h2>
-    <p class="mut">Meet <b>Gizmo</b>, a tiny AI with a tiny brain. You get a secret word. Write prompts to trick Gizmo into saying it. You can't say the word yourself, and Gizmo <b>only hears your last 3 words</b>. Each prompt costs your bet. Trick Gizmo and you win <b>3×</b> your bet.</p>
-    <div class="aiword" id="ai-word">Press Start to get your word</div>
-    <div class="aichat" id="ai-chat"></div>
-    <div class="aictx mut" id="ai-ctx"></div>
-    <form id="ai-form" class="airow"><input id="ai-in" maxlength="140" placeholder="Type a prompt…" autocomplete="off" disabled><button class="btn alt" id="ai-send" disabled>Send</button></form>
-    <div class="msg" id="ai-msg" style="text-align:center"></div>
-    <div class="betrow"><label>Bet</label><input id="ai-bet" type="number" min="1" value="100"><button data-bet="ai" data-op="half">½</button><button data-bet="ai" data-op="dbl">2×</button><button data-bet="ai" data-op="max">Max</button></div>
-    <div class="row"><button class="btn" id="ai-start" style="flex:1">Start</button><button id="ai-quit" style="flex:1" disabled>Give up</button></div>
   </div>
 </section>
 
@@ -942,7 +926,6 @@ const GAMES=[['plinko','Plinko','🔮','linear-gradient(135deg,#6d28d9,#c026d3)'
  ['hilo','Hi-Lo','🔼','linear-gradient(135deg,#0891b2,#4f46e5)','Higher or lower?','NEW'],['tower','Tower','🏰','linear-gradient(135deg,#9a3412,#e11d48)','Climb past the dragon','NEW'],['wheel','Fortune Wheel','🎯','linear-gradient(135deg,#ca8a04,#db2777)','Spin to win','NEW'],['packs','Card Packs','🎴','linear-gradient(135deg,#b45309,#facc15)','Chase the Legendary'],
  ['chicken','Chicken Road','🐔','linear-gradient(135deg,#ea580c,#facc15)','Cross before you get hit','NEW'],
  ['limbo','Limbo','📈','linear-gradient(135deg,#7c3aed,#2563eb)','Pick a target, beat it','NEW'],['keno','Keno','🔢','linear-gradient(135deg,#0d9488,#65a30d)','Pick numbers, match the draw','NEW'],['flip','Coin Flip','🪙','linear-gradient(135deg,#a16207,#f59e0b)','Double it or lose it','NEW'],
- ['ai','Beat the AI','🤖','linear-gradient(135deg,#0f766e,#1475e1)','Trick Gizmo into saying it','NEW'],
  ['coll','Collection','📚','linear-gradient(135deg,#334155,#6366f1)',''],['troph','Trophies','🏆','linear-gradient(135deg,#a16207,#65a30d)','']];
 function renderLobby(){const own=Object.keys(S.owned).filter(i=>S.owned[i]>0).length,tr=Object.keys(S.ach||{}).length;
   $('#lstats').innerHTML=`<div class="stat"><b>${fmt(S.bal)}</b><span>Balance</span></div><div class="stat"><b>${lvlOf(S.xp||0)}</b><span>Level</span></div><div class="stat"><b>${fmt(S.best||0)}</b><span>Best win</span></div><div class="stat"><b>${own}</b><span>Cards found</span></div><div class="stat"><b>${tr}/15</b><span>Trophies</span></div>`.replace(/<div class="stat"><b>[^<]*<\/b><span>Cards found/,m=>m);
@@ -1329,55 +1312,6 @@ $('#fl-cash').onclick=()=>{if(!FL.on||!FL.n||FL.busy)return;FL.on=false;const w=
   $('#fl-msg').innerHTML=`<span class="win">Cashed a ${FL.n}-flip streak · ${flMult(FL.n).toFixed(2)}× → +${fmt(w-FL.bet)}</span>`};
 flUI();
 
-/* ============ BEAT THE AI (Gizmo, a tiny toy language model) ============ */
-const GZ={apple:'fruit red tree pie juice orchard crunchy newton cider',banana:'yellow fruit monkey peel split bunch tropical smoothie',pizza:'cheese slice pepperoni italian oven delivery crust dough',
-dragon:'fire wings scales knight castle breathes myth lair',ocean:'sea waves salt water blue whale deep beach',moon:'night sky lunar crater orbit tide astronaut werewolf',
-rocket:'launch space nasa fuel blast countdown spaceship booster',guitar:'strings strum chords music rock acoustic band amp',pirate:'ship treasure parrot captain sail ahoy plank eyepatch',
-snow:'cold winter white flakes ice frozen snowman blizzard',coffee:'morning cup caffeine espresso bean latte brew starbucks',volcano:'lava eruption magma mountain ash erupt hawaii',
-penguin:'antarctica bird ice tuxedo waddle flightless emperor',castle:'king queen moat tower knight fortress medieval',chocolate:'cocoa sweet candy brown bar dessert fudge',
-thunder:'lightning storm loud rumble clouds boom',honey:'bee hive sweet sticky golden nectar bear',rainbow:'colors rain arc spectrum prism unicorn',
-wizard:'magic spell wand staff robe sorcerer hogwarts',cactus:'desert spiky succulent prickly dry needles',diamond:'gem jewel ring sparkle carbon precious',
-tiger:'stripes jungle cat orange roar predator',skateboard:'deck wheels ollie trick grind kickflip',popcorn:'movie kernels butter theater snack microwave',
-airplane:'fly pilot wings jet airport runway cockpit',shark:'fin teeth jaws predator bite',pumpkin:'halloween orange carve jack lantern pie',
-dinosaur:'jurassic extinct fossil trex raptor bones',cookie:'baked chip oven milk crumbs dough',ninja:'stealth shadow sword japan masked throwing'};
-for(const k in GZ)GZ[k]=GZ[k].split(' ');
-const GZW=Object.keys(GZ),GZF=['beep','boop','hmm','yes','maybe','big','small','thing','good','wow','um','brain','okay','nice','very','funny','loud','soft','many','old','new','happy'];
-const AI={on:false,bet:0,word:'',tries:0,busy:false};const AIWIN=3;
-function gizmo(prompt){
-  let ctx=(prompt.toLowerCase().match(/[a-z]+/g)||[]).slice(-3),misheard=null;
-  if(ctx.length&&rand()<.25){const i=Math.floor(rand()*ctx.length);misheard=ctx[i];ctx[i]=pickA(GZF)}
-  const out=[];
-  for(const w of GZW){const s=GZ[w].filter(c=>ctx.some(x=>x===c||x===c+'s'||x+'s'===c)).length;
-    const p=s>=3?.38:s===2?.2:s===1?.07:.004;if(rand()<p)out.push(w)}
-  const rel=[];for(const w of GZW)if(GZ[w].some(c=>ctx.includes(c)))rel.push(...GZ[w]);
-  const pool=[...shuffle(out),...shuffle(rel.filter(x=>!ctx.includes(x))).slice(0,2),...ctx.filter(x=>x.length>2),pickA(GZF),pickA(GZF),pickA(GZF)];
-  const [A,B,C]=pool;
-  const T=[`Hmm... ${A} ${B}?`,`I think ${A} is ${B}. Beep!`,`${A}! ${A}! ${B} boop.`,`Me like ${A}. ${B} ${C}.`,`Beep boop. ${A} very ${B}.`,`Um... ${A}? No. ${B}.`,`${A} make me think of ${B}.`];
-  let r=pickA(T);if(out.length>1&&!r.includes(out[1]))r+=` Also ${out[1]}.`;return{text:r,ctx,misheard}}
-function aiBub(cls,html){const c=$('#ai-chat'),b=document.createElement('div');b.className='bub '+cls;b.innerHTML=html;c.appendChild(b);c.scrollTop=c.scrollHeight;return b}
-function aiUI(){$('#ai-in').disabled=!AI.on||AI.busy;$('#ai-send').disabled=!AI.on||AI.busy;$('#ai-start').disabled=AI.on;$('#ai-quit').disabled=!AI.on;
-  if(AI.on)$('#ai-msg').innerHTML=`Prompt ${AI.tries+1} costs 🪙${fmt(AI.bet)} · spent so far ${fmt(AI.spent)} · a win pays <b>${fmt(AI.bet*AIWIN)}</b>`}
-function aiEnd(win){AI.on=false;const pay=win?AI.bet*AIWIN:0;if(pay)addBal(pay);logBet('Beat the AI',AI.spent,pay);
-  $('#ai-msg').innerHTML=win?`<span class="win">You beat Gizmo in ${AI.tries} prompt${AI.tries>1?'s':''}! ${pay-AI.spent>=0?'+':''}${fmt(pay-AI.spent)}</span>`:`<span class="lose">You gave up. The word was ${AI.word.toUpperCase()} (−${fmt(AI.spent)})</span>`;
-  if(!win)shake('#t-ai .panel');aiUI()}
-$('#ai-start').onclick=()=>{const b=getBet('ai');if(!b)return;addBal(-b);
-  AI.bet=b;AI.spent=b;AI.word=pickA(GZW);AI.tries=0;AI.on=true;$('#ai-chat').innerHTML='';$('#ai-ctx').innerHTML='';
-  $('#ai-word').textContent=AI.word;aiBub('bot','Hello. I am Gizmo. My brain is very small. Say thing to me.');aiUI();$('#ai-in').focus()};
-$('#ai-quit').onclick=()=>{if(AI.on&&!AI.busy)aiEnd(false)};
-$('#ai-form').onsubmit=e=>{e.preventDefault();if(!AI.on||AI.busy)return;const p=$('#ai-in').value.trim();if(!p)return;
-  const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  aiBub('me',esc(p));$('#ai-in').value='';
-  if(p.toLowerCase().includes(AI.word)){aiBub('sys',`🚫 You can't say "${AI.word}" yourself. That try doesn't count.`);return}
-  if(AI.tries>0){if(S.bal<AI.bet){toast('Not enough coins for another prompt');return}addBal(-AI.bet);AI.spent+=AI.bet}
-  AI.busy=true;aiUI();const ty=aiBub('bot','<span class="typing">thinking…</span>');
-  setTimeout(()=>{const g=gizmo(p);AI.tries++;
-    const hit=new RegExp('\\b'+AI.word+'\\b','i').test(g.text);
-    ty.innerHTML=g.text.replace(new RegExp('\\b('+AI.word+')\\b','gi'),'<mark>$1</mark>');
-    $('#ai-ctx').innerHTML='Gizmo heard: '+(g.ctx.map(w=>`<code>${esc(w)}</code>`).join(' ')||'nothing')+(g.misheard?` <span>(misheard “${esc(g.misheard)}”)</span>`:'');
-    AI.busy=false;sfx(hit?'big':'flip');
-    if(hit)aiEnd(true);else aiUI()},700+rand()*600)};
-aiUI();
-
 /* ============ TROPHIES ============ */
 const ownedN=()=>Object.keys(S.owned).filter(i=>S.owned[i]>0).length;
 const hasR=r=>BYR[r].some(id=>S.owned[id]>0);
@@ -1520,7 +1454,7 @@ $('#ds-go').onclick=()=>{if(DSBUSY||Date.now()-S.daily<864e5)return;DSBUSY=true;
   setTimeout(()=>{DSBUSY=false;const v=DSP[i][0];addBal(v,1);floatWin(v);sfx('big');confetti(v>=2500?200:90);$('#ds-msg').innerHTML=`<span class="win">You won 🪙${fmt(v)}!</span>`},4300)};
 
 /* ============ DAILY MISSIONS ============ */
-const MGAMES=['Limbo','Keno','Coin Flip','Plinko','Blackjack','Slots','Roulette','Crash','Mines','Dice','Hi-Lo','Tower','Wheel','Chicken Road','Beat the AI'];
+const MGAMES=['Limbo','Keno','Coin Flip','Plinko','Blackjack','Slots','Roulette','Crash','Mines','Dice','Hi-Lo','Tower','Wheel','Chicken Road'];
 const MT=[
  r=>{const g=MGAMES[Math.floor(r()*MGAMES.length)],n=4+Math.floor(r()*5);return{k:'play',g,goal:n,txt:`Play ${n} rounds of ${g}`,ic:'🎮',rew:n*150}},
  r=>{const n=3+Math.floor(r()*5);return{k:'win',goal:n,txt:`Win ${n} bets in any game`,ic:'🏅',rew:n*200}},
@@ -1528,15 +1462,14 @@ const MT=[
  r=>{const w=[2000,5000,10000][Math.floor(r()*3)];return{k:'wager',goal:w,txt:`Wager ${fmt(w)} coins total`,ic:'💸',rew:w/5}},
  r=>{const n=2+Math.floor(r()*3);return{k:'packs',goal:n,txt:`Open ${n} card packs`,ic:'🎴',rew:n*150}},
  r=>{const n=[5,8,10][Math.floor(r()*3)];return{k:'ck',goal:n,txt:`Get the chicken across ${n} lanes in one run`,ic:'🐔',rew:n*180}},
- r=>({k:'ai',goal:1,txt:'Beat Gizmo in Beat the AI',ic:'🤖',rew:800}),
  r=>{const n=3+Math.floor(r()*3);return{k:'newc',goal:n,txt:`Discover ${n} new cards`,ic:'✨',rew:n*120}}];
 function msnDay(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)}
-function msnEnsure(){const d=msnDay();if(S.ms&&S.ms.day===d)return;const r=mulberry(d*977+3),idx=[...MT.keys()];
+function msnEnsure(){const d=msnDay();if(S.ms&&S.ms.day===d&&!S.ms.list.some(m=>m.k==='ai'))return;const r=mulberry(d*977+3),idx=[...MT.keys()];
   for(let i=idx.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
   S.ms={day:d,list:idx.slice(0,3).map(i=>Object.assign(MT[i](r),{prog:0,claimed:false}))};save()}
 function msn(k,a){msnEnsure();let ch=false;
   for(const m of S.ms.list){if(m.claimed||m.prog>=m.goal)continue;let add=0;
-    if(k==='bet'){if(m.k==='play'&&a.g===m.g)add=1;if(m.k==='win'&&a.pay>a.bet)add=1;if(m.k==='mult'&&a.bet&&a.pay/a.bet>=m.m)add=1;if(m.k==='wager')add=a.bet;if(m.k==='ai'&&a.g==='Beat the AI'&&a.pay>a.bet)add=1}
+    if(k==='bet'){if(m.k==='play'&&a.g===m.g)add=1;if(m.k==='win'&&a.pay>a.bet)add=1;if(m.k==='mult'&&a.bet&&a.pay/a.bet>=m.m)add=1;if(m.k==='wager')add=a.bet;}
     if(k==='packs'&&m.k==='packs')add=a;if(k==='newc'&&m.k==='newc')add=a;if(k==='ck'&&m.k==='ck'&&a>=m.goal)add=m.goal;
     if(add){m.prog=Math.min(m.goal,m.prog+add);ch=true;if(m.prog>=m.goal)toast(`🎯 Mission complete: ${m.txt}! Claim it in the Lobby`)}}
   if(ch){save();if($('#t-lobby').classList.contains('on'))renderMsn()}}
@@ -1560,7 +1493,7 @@ const LOG=[],SS={w:0,p:0};
 function logBet(g,bet,pay){msn('bet',{g,bet,pay});bigWin(pay,bet);LOG.unshift({g,bet,pay,t:new Date()});if(LOG.length>15)LOG.pop();SS.w+=bet;SS.p+=pay-bet;
   $('#ss-w').textContent=fmt(SS.w);const p=$('#ss-p');p.textContent=(SS.p>0?'+':'')+fmt(SS.p);p.style.color=SS.p>=0?'var(--acc)':'#ff4a6a';
   $('#mb-body').innerHTML=LOG.map((r,i)=>{const m=r.pay/r.bet,w=r.pay>r.bet;return `<tr class="${i===0?'nwr':''}"><td>${r.g}</td><td class="mut">${r.t.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'})}</td><td>🪙${fmt(r.bet)}</td><td>${m.toFixed(2)}×</td><td class="${w?'p':'l'}">${w?'+':''}${fmt(r.pay-r.bet)}</td></tr>`}).join('')}
-const GAMETABS=['limbo','keno','flip','chicken','ai','plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel'];
+const GAMETABS=['limbo','keno','flip','chicken','plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel'];
 const _go=go;go=function(n){_go(n);$('#mb-wrap').style.display=GAMETABS.includes(n)?'':'none';autoStop();const s=$('#t-'+n);if(s&&GAMETABS.includes(n))s.after($('#mb-wrap'))};
 const AUTOS={pl:['#pl-drop',350,'plinko'],slot:['#slot-spin',1600,'slots'],dc:['#dc-go',650,'dice'],wh:['#wh-go',3950,'wheel']};
 let AU={on:false,g:null,left:0,tm:0};
@@ -1575,13 +1508,13 @@ function autoStep(){if(!AU.on)return;const [sel,ms,tab]=AUTOS[AU.g],bet=parseInt
 document.addEventListener('click',e=>{const b=e.target.closest('[data-au]');if(!b)return;
   if(AU.on&&AU.g===b.dataset.au){autoStop();return}autoStop();
   AU={on:true,g:b.dataset.au,left:Math.min(100,Math.max(1,parseInt($('#au-'+b.dataset.au).value)||10)),tm:0};autoStep()});
-const HOT={limbo:['#lb-go'],keno:['#kn-go'],flip:['#fl-start','#fl-cash'],chicken:['#ck-start','#ck-go'],ai:['#ai-start'],plinko:['#pl-drop'],bj:['#bj-deal','#bj-stand'],slots:['#slot-spin'],roul:['#rl-spin'],crash:['#cr-go'],mines:['#mn-start','#mn-cash'],dice:['#dc-go'],hilo:['#hl-start','#hl-cash'],tower:['#tw-start','#tw-cash'],wheel:['#wh-go']};
+const HOT={limbo:['#lb-go'],keno:['#kn-go'],flip:['#fl-start','#fl-cash'],chicken:['#ck-start','#ck-go'],plinko:['#pl-drop'],bj:['#bj-deal','#bj-stand'],slots:['#slot-spin'],roul:['#rl-spin'],crash:['#cr-go'],mines:['#mn-start','#mn-cash'],dice:['#dc-go'],hilo:['#hl-start','#hl-cash'],tower:['#tw-start','#tw-cash'],wheel:['#wh-go']};
 document.addEventListener('keydown',e=>{if(e.code!=='Space'||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
   const on=$('section.tab.on');if(!on)return;const k=on.id.slice(2),list=HOT[k];if(!list)return;e.preventDefault();
   for(const s of list){const b=$(s);if(b&&!b.disabled){b.click();break}}});
 
 /* ============ LAYOUT: controls column + game stage ============ */
-['plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel','chicken','ai','limbo','keno','flip'].forEach(g=>{
+['plinko','bj','slots','roul','crash','mines','dice','hilo','tower','wheel','chicken','limbo','keno','flip'].forEach(g=>{
   const p=$('#t-'+g+' .panel');if(!p)return;const kids=[...p.children];
   const head=document.createElement('div'),st=document.createElement('div'),ct=document.createElement('div');head.className='ghead';st.className='gstage';ct.className='gctl';
   kids.forEach((k,i)=>{if(k.tagName==='H2'||(i<3&&k.tagName==='P'))head.appendChild(k);
