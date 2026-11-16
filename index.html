@@ -539,6 +539,7 @@ body.turbo .coin{transition-duration:.35s}
 .betrow,.autorow{flex-wrap:wrap}
 @media(max-width:600px){.betrow input[id$="-bet"]{flex:1;min-width:90px}.autorow button{flex:1 1 100%}}
 @media(max-width:600px){#snd,#mus{display:none}.logo{font-size:13px}#daily{font-size:11px;padding:8px}.mechip{padding:2px}#setb{padding:4px}}
+button.maxon{background:var(--acc)!important;color:#05080f!important;box-shadow:0 0 12px var(--acc)}
 </style>
 </head>
 <body>
@@ -1075,7 +1076,7 @@ function sfx(k){if(!SND)return;try{AC=AC||new (window.AudioContext||window.webki
   seq.forEach(([f,t])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=k==='tick'?'square':'triangle';o.frequency.value=f;
     g.gain.setValueAtTime((k==='tick'?.03:.12)*VOL(),now+t);g.gain.exponentialRampToValueAtTime(.001,now+t+.18);o.connect(g);g.connect(AC.destination);o.start(now+t);o.stop(now+t+.2)})}catch(e){}}
 document.addEventListener('click',e=>{if(e.target.closest('button')&&e.target.id!=='snd')sfx('tick')});
-function renderBal(){tweenBal();renderLvl();$('#rescue').style.display=S.bal<10?'':'none';
+function renderBal(){tweenBal();if(typeof syncMax==='function')syncMax();renderLvl();$('#rescue').style.display=S.bal<10?'':'none';
   const left=S.daily+864e5-Date.now();const d=$('#daily');
   if(left>0){d.disabled=true;d.textContent='Spin in '+Math.ceil(left/36e5)+'h'}else{d.disabled=false;d.textContent='🎁 Daily Spin'}}
 $('#daily').onclick=()=>openSpin();
@@ -1298,10 +1299,17 @@ $('#mus').classList.toggle('on',MUS);$('#mus').onclick=()=>{MUS=!MUS;try{localSt
 
 /* ============ bet helpers ============ */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-bet]');if(!b)return;
-  const i=$('#'+b.dataset.bet+'-bet');let v=parseInt(i.value)||1;
+  const p=b.dataset.bet,i=$('#'+p+'-bet');let v=parseInt(i.value)||1;
+  if(b.dataset.op==='max'){setMax(p,!MAXM[p]);return}setMax(p,false);
   if(b.dataset.op==='half')v=Math.max(1,Math.floor(v/2));else if(b.dataset.op==='dbl')v=v*2;else if(b.dataset.op==='add')v=(b.dataset.v==='min'?1:v+ +b.dataset.v);else v=Math.max(1,S.bal);
   i.value=Math.min(v,Math.max(1,S.bal))});
-function getBet(p){const v=Math.floor(parseFloat($('#'+p+'-bet').value));
+const MAXM={};
+function setMax(p,on){MAXM[p]=on;$$(`[data-bet="${p}"][data-op="max"]`).forEach(x=>{x.classList.toggle('maxon',on);x.textContent=on?'Max ✓':'Max'});
+  if(on){$('#'+p+'-bet').value=Math.max(1,S.bal);toast('Max bet is ON: every bet uses your full balance. Tap Max again to turn it off.')}}
+function syncMax(){for(const p in MAXM)if(MAXM[p]){const i=$('#'+p+'-bet');if(i)i.value=Math.max(1,S.bal)}}
+document.addEventListener('input',e=>{const m=/^(\w+)-bet$/.exec(e.target.id||'');if(m&&MAXM[m[1]])setMax(m[1],false)});
+function getBet(p){if(MAXM[p]){const v=Math.max(1,S.bal);$('#'+p+'-bet').value=v;if(v>S.bal){toast('Not enough coins');return 0}LB=v;return v}
+  const v=Math.floor(parseFloat($('#'+p+'-bet').value));
   if(!(v>=1)){toast('Enter a bet of at least 1');return 0}
   if(v>S.bal){toast('Not enough coins');return 0}
   if(S.set&&S.set.confirm&&v>=1000&&v>=S.bal*.5&&!(CONF[p]>Date.now())){CONF[p]=Date.now()+4000;toast(`That's ${Math.round(v/S.bal*100)}% of your coins. Tap again to confirm.`);return 0}
